@@ -7,7 +7,9 @@
 # Added preset exmaples to use in the demo
 # Replaced entire render_input_form() function for ex
 # Removed the empty input check in main()
-
+# running into tons of cpu issues and timeout in render app. changing to return torch.bfloat16 V3
+    # also reducing generation length from 384 to 192 V3
+    # added device_map="cpu" for loading issues , V3
 """Streamlit application for the fine-tuned Context-to-Learning system."""
 
 from __future__ import annotations
@@ -29,7 +31,8 @@ from transformers import (
 
 ADAPTER_PATH: Final[Path] = Path("models/context-learning-lora")
 DEFAULT_BASE_MODEL_NAME: Final[str] = "Qwen/Qwen2.5-0.5B-Instruct"
-MAX_NEW_TOKENS: Final[int] = 384
+#MAX_NEW_TOKENS: Final[int] = 384
+MAX_NEW_TOKENS: Final[int] = 192
 
 SYSTEM_PROMPT: Final[str] = (
     "You create accurate, age-appropriate, curriculum-aligned learning "
@@ -250,7 +253,8 @@ def determine_model_dtype(device: torch.device) -> torch.dtype:
 
         return torch.float16
 
-    return torch.float32
+    #return torch.float32
+    return torch.bfloat16
 
 
 def load_application_tokenizer(
@@ -314,6 +318,7 @@ def load_fine_tuned_model_and_tokenizer() -> tuple[
             torch_dtype=model_dtype,
             trust_remote_code=False,
             low_cpu_mem_usage=True,
+            device_map="cpu", 
         )
     except (OSError, ValueError, RuntimeError) as error:
         raise RuntimeError(
@@ -321,14 +326,11 @@ def load_fine_tuned_model_and_tokenizer() -> tuple[
         ) from error
 
     try:
-        base_model.to(inference_device)
-
         fine_tuned_model = PeftModel.from_pretrained(
             base_model,
             str(ADAPTER_PATH),
             is_trainable=False,
         )
-        fine_tuned_model.to(inference_device)
         fine_tuned_model.eval()
     except (OSError, ValueError, RuntimeError) as error:
         raise RuntimeError(

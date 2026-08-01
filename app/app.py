@@ -10,6 +10,8 @@
 # running into tons of cpu issues and timeout in render app. changing to return torch.bfloat16 V3
     # also reducing generation length from 384 to 192 V3
     # added device_map="cpu" for loading issues , V3
+#V4 max_new_tokens = 96 for faster render app launch
+#V4 Also adding early stopping so if the model finishes before hitting 96 tokens. it'll stop
 """Streamlit application for the fine-tuned Context-to-Learning system."""
 
 from __future__ import annotations
@@ -32,7 +34,8 @@ from transformers import (
 ADAPTER_PATH: Final[Path] = Path("models/context-learning-lora")
 DEFAULT_BASE_MODEL_NAME: Final[str] = "Qwen/Qwen2.5-0.5B-Instruct"
 #MAX_NEW_TOKENS: Final[int] = 384
-MAX_NEW_TOKENS: Final[int] = 192
+# V3 MAX_NEW_TOKENS: Final[int] = 192
+MAX_NEW_TOKENS: Final[int] = 96
 
 SYSTEM_PROMPT: Final[str] = (
     "You create accurate, age-appropriate, curriculum-aligned learning "
@@ -433,6 +436,7 @@ def generate_learning_opportunity(
                 repetition_penalty=1.05,
                 pad_token_id=tokenizer.pad_token_id,
                 eos_token_id=tokenizer.eos_token_id,
+                early_stopping=True,
             )
     except RuntimeError as error:
         raise RuntimeError(

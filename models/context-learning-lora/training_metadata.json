@@ -1,0 +1,6 @@
+{
+  "base_model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "adapter_type": "LoRA",
+  "task_type": "causal_language_modeling",
+  "dataset_path": "data/raw/context_learning_dataset.jsonl"
+}

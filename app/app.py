@@ -12,6 +12,7 @@
     # added device_map="cpu" for loading issues , V3
 #V4 max_new_tokens = 96 for faster render app launch
 #V4 Also adding early stopping so if the model finishes before hitting 96 tokens. it'll stop
+# V5 MAX_NEW_TOKENS = 128, text was cut off, expanding to sweet spot to complete full results
 """Streamlit application for the fine-tuned Context-to-Learning system."""
 
 from __future__ import annotations
@@ -35,7 +36,8 @@ ADAPTER_PATH: Final[Path] = Path("models/context-learning-lora")
 DEFAULT_BASE_MODEL_NAME: Final[str] = "Qwen/Qwen2.5-0.5B-Instruct"
 #MAX_NEW_TOKENS: Final[int] = 384
 # V3 MAX_NEW_TOKENS: Final[int] = 192
-MAX_NEW_TOKENS: Final[int] = 96
+# V4 MAX_NEW_TOKENS: Final[int] = 96
+MAX_NEW_TOKENS = 128
 
 SYSTEM_PROMPT: Final[str] = (
     "You create accurate, age-appropriate, curriculum-aligned learning "
